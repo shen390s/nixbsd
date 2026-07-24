@@ -96,7 +96,14 @@ fi
 # Verify permissions are okay-enough
 checkPath="$(realpath "$mountPoint")"
 while [[ "$checkPath" != "/" ]]; do
-    mode="$(stat -c '%a' "$checkPath")"
+    case "@hostPlatform@" in
+        *-freebsd)
+            mode="$(stat -f '%Lp' "$checkPath")"
+            ;;
+        *)
+            mode="$(stat -c '%a' "$checkPath")"
+            ;;
+    esac
     if [[ "${mode: -1}" -lt "5" ]]; then
         echo "path $checkPath should have permissions 755, but had permissions $mode. Consider running 'chmod o+rx $checkPath'."
         exit 1
@@ -256,7 +263,12 @@ nix-env --store "$mountPoint" "${extraBuildFlags[@]}" \
         --extra-substituters "$sub" \
         -p "$mountPoint"/nix/var/nix/profiles/system --set "$system" "${verbosity[@]}"
 
-rm -rf "$mountPoint/etc/ssl" "$mountPoint/etc/nix"
+# Clean up temporary files copied for the build (OpenBSD only).
+case "@hostPlatform@" in
+    *-openbsd)
+        rm -rf "$mountPoint/etc/ssl" "$mountPoint/etc/nix"
+        ;;
+esac
 
 # Switch to the new system configuration.  This will install Grub with
 # a menu default pointing at the kernel/initrd/etc of the new

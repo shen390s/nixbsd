@@ -60,8 +60,8 @@ in
       pivotFileSystems = [ "/nix/store" ];
     };
 
-    # Kernel modules needed for CD-ROM and overlay access
-    boot.kernelModules = [ "cd9660" ];
+    # Kernel modules needed for CD-ROM, overlay access, and EFI partition mounting
+    boot.kernelModules = [ "cd9660" "msdosfs" ];
 
     # Copy kernel to ESP (needed for the EFI boot image on ISO)
     boot.copyKernelToBoot = true;

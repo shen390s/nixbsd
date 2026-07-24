@@ -50,8 +50,9 @@ rec {
       ]
       ++ lib.optionals stdenv.hostPlatform.isFreeBSD [
         freebsd.bin
+        freebsd.mount
       ]
-      ++ lib.optionals (!stdenv.hostPlatform.isFreeBSD) [
+      ++ lib.optionals (!stdenv.hostPlatform.isFreeBSD && !stdenv.hostPlatform.isOpenBSD) [
         socat
       ]
       ++ lib.optionals stdenv.hostPlatform.isOpenBSD [
