@@ -15,7 +15,7 @@ The resulting ISO is placed in `./result/`.
 
 ## Booting the ISO {#sec-booting-iso}
 
-### Physical Hardware
+### Physical Hardware {#sec-boot-physical}
 
 Write the ISO to a USB drive:
 
@@ -205,7 +205,7 @@ NixBSD also supports ZFS as the root filesystem:
 
 ## Troubleshooting {#sec-install-troubleshooting}
 
-### `nixos-install` reports "file 'nixbsd' was not found"
+### nixos-install reports file nixbsd was not found {#sec-trouble-nix-path}
 
 The `NIX_PATH` environment variable is not set. This is configured
 automatically on the live ISO. If you are in a custom environment,
@@ -215,7 +215,7 @@ set it manually:
 # export NIX_PATH="nixbsd=/path/to/nixbsd-source:nixpkgs=/path/to/nixpkgs"
 ```
 
-### `mount_msdosfs: Invalid argument`
+### mount_msdosfs Invalid argument {#sec-trouble-msdosfs}
 
 The `msdosfs` kernel module may not be loaded. The live ISO loads it
 automatically, but if needed:
@@ -224,7 +224,7 @@ automatically, but if needed:
 # kldload msdosfs
 ```
 
-### `newfs_msdos: too few clusters for FAT32`
+### newfs_msdos too few clusters for FAT32 {#sec-trouble-fat32-clusters}
 
 Use `-c 1` to set 1 sector per cluster:
 
@@ -238,12 +238,12 @@ Alternatively, use FAT16 which has no minimum cluster count:
 # newfs_msdos -F 16 -L EFI /dev/vtbd0p1
 ```
 
-### Boot fails after install
+### Boot fails after install {#sec-trouble-boot-fail}
 
 Check that the EFI boot entry was created correctly. From the installed
 system, verify with `efibootmgr -v`.
 
-### Cannot find disk device
+### Cannot find disk device {#sec-trouble-disk-device}
 
 Device names depend on the controller type:
 
