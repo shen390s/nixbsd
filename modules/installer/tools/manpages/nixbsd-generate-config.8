@@ -1,0 +1,92 @@
+.Dd July 24, 2026
+.Dt NIXBSD-GENERATE-CONFIG 8
+.Os
+.Sh NAME
+.Nm nixbsd-generate-config
+.Nd generate NixBSD configuration by inspecting the running system
+.Sh SYNOPSIS
+.Nm
+.Op Fl -dir Ar directory
+.Op Fl -root Ar directory
+.Op Fl -force
+.Op Fl -no-filesystems
+.Op Fl -show-hardware-config
+.Sh DESCRIPTION
+This command generates an initial NixBSD configuration file
+.Pa /etc/nixos/configuration.nix
+and a hardware scan file
+.Pa /etc/nixos/hardware-configuration.nix .
+The latter contains settings determined by inspecting the hardware and
+currently mounted filesystems.
+This is useful for creating an initial configuration after installing
+NixBSD, or when hardware changes have been made.
+.Pp
+The hardware configuration includes:
+.Bl -bullet
+.It
+CPU architecture detection (x86_64, aarch64)
+.It
+Virtualization detection (KVM, bhyve, VirtualBox, VMware, etc.)
+.It
+Mounted filesystem detection with stable device paths
+(via /dev/gpt/, /dev/ufsid/, /dev/msdosfs/)
+.It
+ZFS pool detection
+.It
+Swap device detection
+.El
+.Pp
+.Pa configuration.nix
+is not overwritten if it already exists unless
+.Fl -force
+is specified.
+.Pa hardware-configuration.nix
+is always overwritten, since it is generated from the current system state.
+.Sh OPTIONS
+.Bl -tag -width indent
+.It Fl -dir Ar directory
+Write the configuration files to
+.Ar directory
+instead of
+.Pa /etc/nixos .
+.It Fl -root Ar directory
+Treat
+.Ar directory
+as the root of the target filesystem.
+Used during installation when the target is mounted at a subdirectory.
+.It Fl -force
+Overwrite
+.Pa configuration.nix
+even if it already exists.
+.It Fl -no-filesystems
+Skip filesystem and swap detection.
+Only hardware attributes will be included in the generated configuration.
+.It Fl -show-hardware-config
+Print the generated hardware configuration to standard output instead of
+writing files.
+Useful for inspecting what would be generated.
+.El
+.Sh FILES
+.Bl -tag -width "/etc/nixos/hardware-configuration.nix"
+.It Pa /etc/nixos/configuration.nix
+Main NixBSD system configuration file.
+.It Pa /etc/nixos/hardware-configuration.nix
+Auto-generated hardware-specific configuration.
+.El
+.Sh EXAMPLES
+Generate configuration for the currently running system:
+.Pp
+.Dl # nixbsd-generate-config
+.Pp
+Generate configuration for a system mounted at /mnt:
+.Pp
+.Dl # nixbsd-generate-config --root /mnt
+.Pp
+Show what hardware configuration would be generated:
+.Pp
+.Dl # nixbsd-generate-config --show-hardware-config
+.Sh SEE ALSO
+.Xr nixos-install 8 ,
+.Xr nixos-rebuild 8
+.Sh AUTHORS
+NixBSD Contributors

@@ -108,4 +108,25 @@ rec {
     hostPlatform = stdenv.hostPlatform.system;
     manPage = ./manpages/nixos-enter.8;
   };
+
+  nixbsd-generate-config = makeProg {
+    name = "nixbsd-generate-config";
+    src = ./nixbsd-generate-config.sh;
+    inherit runtimeShell;
+    path = lib.makeBinPath (
+      [
+        coreutils
+        gnused
+        gnugrep
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isFreeBSD [
+        freebsd.bin
+        freebsd.mount
+        freebsd.sysctl
+        freebsd.kldstat
+      ]
+    );
+    stateVersion = nixosVersion;
+    manPage = ./manpages/nixbsd-generate-config.8;
+  };
 }
