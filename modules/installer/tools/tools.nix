@@ -39,13 +39,13 @@ in
         nixos-rebuild
         nixos-version
         nixos-enter
-        nixbsd-generate-config
+        nixos-generate-config
       ];
     })
 
     # These may be used in auxiliary scripts (ie not part of toplevel), so they are defined unconditionally.
     ({
-      system.build = { inherit (tools) nixos-install nixos-rebuild nixos-enter nixbsd-generate-config; };
+      system.build = { inherit (tools) nixos-install nixos-rebuild nixos-enter nixos-generate-config; };
       system.installerDependencies = [ pkgs.installShellFiles ];
     })
   ];

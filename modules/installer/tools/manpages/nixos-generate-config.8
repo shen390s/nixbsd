@@ -1,8 +1,8 @@
 .Dd July 24, 2026
-.Dt NIXBSD-GENERATE-CONFIG 8
+.Dt NIXOS-GENERATE-CONFIG 8
 .Os
 .Sh NAME
-.Nm nixbsd-generate-config
+.Nm nixos-generate-config
 .Nd generate NixBSD configuration by inspecting the running system
 .Sh SYNOPSIS
 .Nm
@@ -76,15 +76,15 @@ Auto-generated hardware-specific configuration.
 .Sh EXAMPLES
 Generate configuration for the currently running system:
 .Pp
-.Dl # nixbsd-generate-config
+.Dl # nixos-generate-config
 .Pp
 Generate configuration for a system mounted at /mnt:
 .Pp
-.Dl # nixbsd-generate-config --root /mnt
+.Dl # nixos-generate-config --root /mnt
 .Pp
 Show what hardware configuration would be generated:
 .Pp
-.Dl # nixbsd-generate-config --show-hardware-config
+.Dl # nixos-generate-config --show-hardware-config
 .Sh SEE ALSO
 .Xr nixos-install 8 ,
 .Xr nixos-rebuild 8

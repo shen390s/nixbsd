@@ -109,9 +109,9 @@ rec {
     manPage = ./manpages/nixos-enter.8;
   };
 
-  nixbsd-generate-config = makeProg {
-    name = "nixbsd-generate-config";
-    src = ./nixbsd-generate-config.sh;
+  nixos-generate-config = makeProg {
+    name = "nixos-generate-config";
+    src = ./nixos-generate-config.sh;
     inherit runtimeShell;
     path = lib.makeBinPath (
       [
@@ -127,6 +127,6 @@ rec {
       ]
     );
     stateVersion = nixosVersion;
-    manPage = ./manpages/nixbsd-generate-config.8;
+    manPage = ./manpages/nixos-generate-config.8;
   };
 }
