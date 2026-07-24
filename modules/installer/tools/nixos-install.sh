@@ -211,7 +211,7 @@ if [[ -z $system ]]; then
             outLink="$tmpdir/nix"
             if [[ -z "$flake" ]]; then
                 nix-build --out-link "$outLink" "${extraBuildFlags[@]}" \
-                    '<nixbsd>' -A config.nix.package -I "nixos-config=$NIXOS_CONFIG" "${verbosity[@]}"
+                    '<nixbsd/nixos>' -A config.nix.package -I "nixos-config=$NIXOS_CONFIG" "${verbosity[@]}"
                 nixPath="$(readlink -f "$outLink")"
             else
                 nix "${flakeFlags[@]}" build "$flake#$flakeAttr.config.nix.package" "${verbosity[@]}" \
@@ -241,7 +241,7 @@ if [[ -z $system ]]; then
         echo "building the configuration in $NIXOS_CONFIG..."
         "${chrootFlags[@]}" "${nixPrefix}nix-build" --out-link "$outLink" \
             "${storeFlags[@]}" "${extraBuildFlags[@]}" \
-            '<nixbsd>' -A system -I "nixos-config=$NIXOS_CONFIG" "${verbosity[@]}"
+            '<nixbsd/nixos>' -A system -I "nixos-config=$NIXOS_CONFIG" "${verbosity[@]}"
     else
         echo "building the flake in $flake..."
         "${chrootFlags[@]}" "${nixPrefix}nix" "${flakeFlags[@]}" build \

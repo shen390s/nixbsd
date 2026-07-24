@@ -505,7 +505,7 @@ prebuiltNix() {
 if [[ -n $buildNix && -z $flake ]]; then
     log "building Nix..."
     nixDrv=
-    if ! nixDrv="$(runCmd nix-instantiate '<nixbsd>' --add-root "$tmpDir/nix.drv" --indirect -A config.nix.package.out "${extraBuildFlags[@]}")"; then
+    if ! nixDrv="$(runCmd nix-instantiate '<nixbsd/nixos>' --add-root "$tmpDir/nix.drv" --indirect -A config.nix.package.out "${extraBuildFlags[@]}")"; then
         if ! nixDrv="$(runCmd nix-instantiate '<nixpkgs>' --add-root "$tmpDir/nix.drv" --indirect -A nix "${extraBuildFlags[@]}")"; then
             if ! nixStorePath="$(runCmd nix-instantiate --eval '<nixbsd/modules/installer/tools/nix-fallback-paths.nix>' -A "$(nixSystem)" | sed -e 's/^"//' -e 's/"$//')"; then
                 nixStorePath="$(prebuiltNix "$(uname -m)")"
@@ -562,7 +562,7 @@ if [ "$action" = repl ]; then
     # You should feel free to improve its behavior, as well as resolve tech
     # debt in "breaking" ways. Humans adapt quite well.
     if [[ -z $flake ]]; then
-        exec nix repl '<nixbsd>' "${extraBuildFlags[@]}"
+        exec nix repl '<nixbsd/nixos>' "${extraBuildFlags[@]}"
     else
         if [[ -n "${lockFlags[0]}" ]]; then
             # nix repl itself does not support locking flags
@@ -716,7 +716,7 @@ elif [[ -z $rollback ]]; then
     log "building the system configuration..."
     if [[ "$action" = switch || "$action" = boot ]]; then
         if [[ -z $flake ]]; then
-            pathToConfig="$(nixBuild '<nixbsd>' --no-out-link -A system "${extraBuildFlags[@]}")"
+            pathToConfig="$(nixBuild '<nixbsd/nixos>' --no-out-link -A system "${extraBuildFlags[@]}")"
         else
             pathToConfig="$(nixFlakeBuild "$flake#$flakeAttr.config.system.build.toplevel" "${extraBuildFlags[@]}" "${lockFlags[@]}")"
         fi
@@ -724,13 +724,13 @@ elif [[ -z $rollback ]]; then
         targetHostSudoCmd nix-env -p "$profile" --set "$pathToConfig"
     elif [[ "$action" = test || "$action" = build || "$action" = dry-build || "$action" = dry-activate ]]; then
         if [[ -z $flake ]]; then
-            pathToConfig="$(nixBuild '<nixbsd>' -A system -k "${extraBuildFlags[@]}")"
+            pathToConfig="$(nixBuild '<nixbsd/nixos>' -A system -k "${extraBuildFlags[@]}")"
         else
             pathToConfig="$(nixFlakeBuild "$flake#$flakeAttr.config.system.build.toplevel" "${extraBuildFlags[@]}" "${lockFlags[@]}")"
         fi
     elif [ "$action" = build-vm ]; then
         if [[ -z $flake ]]; then
-            pathToConfig="$(nixBuild '<nixbsd>' -A vm -k "${extraBuildFlags[@]}")"
+            pathToConfig="$(nixBuild '<nixbsd/nixos>' -A vm -k "${extraBuildFlags[@]}")"
         else
             pathToConfig="$(nixFlakeBuild "$flake#$flakeAttr.config.system.build.vm" "${extraBuildFlags[@]}" "${lockFlags[@]}")"
         fi
