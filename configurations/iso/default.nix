@@ -2,7 +2,7 @@
 # Produces a bootable live ISO suitable for installation or recovery.
 #
 # Build with: nix build .#iso.isoImage
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, nixbsdSource ? ./., _nixbsdNixpkgsPath, ... }:
 {
   imports = [
     ../../modules/installer/cd-dvd/iso-image.nix
@@ -47,6 +47,9 @@
     tmux
     vim
   ];
+
+  # Set NIX_PATH so that nixos-install and nixos-rebuild can find <nixbsd> and <nixpkgs>
+  environment.sessionVariables.NIX_PATH = "nixbsd=${nixbsdSource}:nixpkgs=${_nixbsdNixpkgsPath}";
 
   # Include installer tools
   system.includeInstallerDependencies = true;

@@ -84,6 +84,7 @@
             specialArgs = {
               cppnixFlake = cppnix;
               mini-tmpfiles-flake = mini-tmpfiles;
+              nixbsdSource = self.outPath;
             }
             // (args.specialArgs or { });
           }
