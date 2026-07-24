@@ -37,6 +37,7 @@ preface.md
 ```
 
 ```{=include=} parts
+installation/installation.md
 configuration/configuration.md
 ```
 
