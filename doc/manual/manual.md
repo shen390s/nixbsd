@@ -37,11 +37,11 @@ preface.md
 ```
 
 ```{=include=} parts
-installation/installation.md
 configuration/configuration.md
 ```
 
 ```{=include=} chapters
+installation/installation.md
 contributing-to-this-manual.chapter.md
 ```
 
