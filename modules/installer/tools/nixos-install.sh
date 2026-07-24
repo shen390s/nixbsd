@@ -96,16 +96,12 @@ fi
 # Verify permissions are okay-enough
 checkPath="$(realpath "$mountPoint")"
 while [[ "$checkPath" != "/" ]]; do
-    case "@hostPlatform@" in
-        *-freebsd)
-            mode="$(stat -f '%Lp' "$checkPath")"
-            ;;
-        *)
-            mode="$(stat -c '%a' "$checkPath")"
-            ;;
-    esac
-    if [[ "${mode: -1}" -lt "5" ]]; then
-        echo "path $checkPath should have permissions 755, but had permissions $mode. Consider running 'chmod o+rx $checkPath'."
+    mode="$(ls -ld "$checkPath" | awk '{print $1}')"
+    # Check that "others" have at least read+execute (r-x)
+    other_r="${mode:7:1}"
+    other_x="${mode:9:1}"
+    if [[ "$other_r" == "-" || "$other_x" == "-" ]]; then
+        echo "path $checkPath should have permissions that allow others to read and traverse it. Consider running 'chmod o+rx $checkPath'."
         exit 1
     fi
     checkPath="$(dirname "$checkPath")"
