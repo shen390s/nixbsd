@@ -37,7 +37,10 @@
         self.lib.nixbsdSystem {
           modules = [
             module
-            { networking.hostName = "nixbsd-${name}"; }
+            {
+              networking.hostName = "nixbsd-${name}";
+              system.configurationRevision = self.rev or self.dirtyRev or "dirty";
+            }
           ];
         };
 

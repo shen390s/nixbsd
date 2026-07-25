@@ -11,8 +11,11 @@
 
   nixpkgs.hostPlatform = "x86_64-freebsd";
 
-  # ISO image settings
-  isoImage.isoName = "nixbsd-${config.system.nixos.label}.iso";
+  # ISO image settings — include NixBSD revision in the filename
+  isoImage.isoName = let
+    rev = config.system.configurationRevision;
+    shortRev = builtins.substring 0 7 rev;
+  in "nixbsd-${config.system.nixos.release}.${shortRev}.iso";
   isoImage.volumeID = "NIXBSD_ISO";
 
   # Boot loader
