@@ -18,23 +18,11 @@ let
   # Read the flake lock to get pinned input revisions for offline use.
   lock = builtins.fromJSON (builtins.readFile ../flake.lock);
 
-  # Fetch mini-tmpfiles source using the locked revision.
-  # On the live ISO this resolves from the local store (no network needed).
-  mini-tmpfiles-src = builtins.fetchTree {
-    type = "github";
-    owner = lock.nodes.mini-tmpfiles.locked.owner;
-    repo = lock.nodes.mini-tmpfiles.locked.repo;
-    rev = lock.nodes.mini-tmpfiles.locked.rev;
-    narHash = lock.nodes.mini-tmpfiles.locked.narHash;
-  };
-
-  # Construct a fake flake output that provides the overlay,
-  # matching what the flake evaluation would produce.
-  mini-tmpfiles-flake = {
-    overlays.default = final: prev: {
-      mini-tmpfiles = final.callPackage "${mini-tmpfiles-src}/package.nix" { };
-    };
-  };
+  # Use builtins.getFlake to properly evaluate the mini-tmpfiles flake.
+  # The narHash ensures this resolves from the local store on the ISO
+  # without network access.
+  mini-tmpfiles-flake = builtins.getFlake
+    "github:${lock.nodes.mini-tmpfiles.locked.owner}/${lock.nodes.mini-tmpfiles.locked.repo}/${lock.nodes.mini-tmpfiles.locked.rev}";
 
   eval = import ../lib/eval-config.nix {
     inherit system;
