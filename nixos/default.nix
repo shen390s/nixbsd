@@ -17,6 +17,11 @@
 let
   eval = import ../lib/eval-config.nix {
     inherit system;
+    specialArgs = {
+      cppnixFlake = null;
+      mini-tmpfiles-flake = null;
+      nixbsdSource = ../.;
+    };
     modules = [
       configuration
     ];
