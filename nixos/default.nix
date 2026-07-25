@@ -15,15 +15,39 @@
 }:
 
 let
+  # Read the flake lock to get pinned input revisions for offline use.
+  lock = builtins.fromJSON (builtins.readFile ../flake.lock);
+
+  # Fetch mini-tmpfiles source using the locked revision.
+  # On the live ISO this resolves from the local store (no network needed).
+  mini-tmpfiles-src = builtins.fetchTree {
+    type = "github";
+    owner = lock.nodes.mini-tmpfiles.locked.owner;
+    repo = lock.nodes.mini-tmpfiles.locked.repo;
+    rev = lock.nodes.mini-tmpfiles.locked.rev;
+    narHash = lock.nodes.mini-tmpfiles.locked.narHash;
+  };
+
+  # Construct a fake flake output that provides the overlay,
+  # matching what the flake evaluation would produce.
+  mini-tmpfiles-flake = {
+    overlays.default = final: prev: {
+      mini-tmpfiles = final.callPackage "${mini-tmpfiles-src}/package.nix" { };
+    };
+  };
+
   eval = import ../lib/eval-config.nix {
     inherit system;
     specialArgs = {
       cppnixFlake = null;
-      mini-tmpfiles-flake = null;
+      inherit mini-tmpfiles-flake;
       nixbsdSource = ../.;
     };
     modules = [
       configuration
+      # Disable the cppnix overlay (not available without the flake)
+      # but keep mini-tmpfiles overlay active since we fetched it above.
+      { nixpkgs.overrideNix = false; }
     ];
   };
 in
