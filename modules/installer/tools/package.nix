@@ -127,7 +127,7 @@ rec {
         freebsd.kldstat
       ]
     );
-    stateVersion = nixosVersion;
+    stateVersion = builtins.concatStringsSep "." (lib.take 2 (lib.splitVersion nixosVersion));
     manPage = ./manpages/nixos-generate-config.8;
   };
 }
