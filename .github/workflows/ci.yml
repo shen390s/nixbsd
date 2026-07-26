@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  eval-check:
+    name: Evaluate configurations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-substituters = https://attic.mildlyfunctional.gay/nixbsd
+            extra-trusted-public-keys = nixbsd:gwcQlsUONBLrrGCOdEboIAeFq9eLaDqfhfXmHZs1mgc=
+
+      - name: Check flake evaluates
+        run: nix flake check --no-build --all-systems
+
+      - name: Evaluate ISO configuration
+        run: nix eval .#nixosConfigurations.iso.config.system.build.toplevel.drvPath
+
+      - name: Verify nixos-generate-config is in ISO packages
+        run: |
+          result=$(nix eval --raw .#nixosConfigurations.iso.config.system.build.nixos-generate-config.name)
+          echo "nixos-generate-config package: $result"
+          if [[ "$result" != *"nixos-generate-config"* ]]; then
+            echo "ERROR: nixos-generate-config not found in system.build"
+            exit 1
+          fi
+
+      - name: Verify installer tools in ISO system packages
+        run: |
+          nix eval --json .#nixosConfigurations.iso.config.environment.systemPackages \
+            --apply 'pkgs: map (p: p.name or p.pname or "unknown") pkgs' \
+            | tee /tmp/packages.json
+          for tool in nixos-install nixos-rebuild nixos-enter nixos-generate-config; do
+            if ! grep -q "$tool" /tmp/packages.json; then
+              echo "ERROR: $tool missing from environment.systemPackages"
+              exit 1
+            fi
+          done
+          echo "All installer tools present"
+
+  build-tools:
+    name: Build installer tools
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-substituters = https://attic.mildlyfunctional.gay/nixbsd
+            extra-trusted-public-keys = nixbsd:gwcQlsUONBLrrGCOdEboIAeFq9eLaDqfhfXmHZs1mgc=
+
+      - name: Build installer tools (native Linux)
+        run: nix build .#packages.x86_64-linux.tools --print-build-logs
+
+      - name: Verify tool binaries
+        run: |
+          for tool in nixos-install nixos-rebuild nixos-version nixos-enter nixos-generate-config; do
+            if [ ! -f "result/$tool/bin/$tool" ] && [ ! -f "result/bin/$tool" ]; then
+              # Try the individual package output
+              echo "Checking $tool..."
+              nix build ".#packages.x86_64-linux.tools.$tool" --print-build-logs
+              if [ -f "result/bin/$tool" ]; then
+                echo "OK: $tool built successfully"
+              else
+                echo "ERROR: $tool binary not found"
+                ls -la result/bin/ 2>/dev/null || ls -la result/ 2>/dev/null
+                exit 1
+              fi
+            fi
+          done
+
+  build-iso-drv:
+    name: Evaluate ISO image derivation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-substituters = https://attic.mildlyfunctional.gay/nixbsd
+            extra-trusted-public-keys = nixbsd:gwcQlsUONBLrrGCOdEboIAeFq9eLaDqfhfXmHZs1mgc=
+
+      - name: Evaluate ISO image derivation
+        run: |
+          drv=$(nix eval --raw .#packages.x86_64-linux.iso.isoImage.drvPath)
+          echo "ISO derivation: $drv"
+          echo "ISO evaluation successful"
+
+  build-manual:
+    name: Build documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-substituters = https://attic.mildlyfunctional.gay/nixbsd
+            extra-trusted-public-keys = nixbsd:gwcQlsUONBLrrGCOdEboIAeFq9eLaDqfhfXmHZs1mgc=
+
+      - name: Build manual
+        run: |
+          nix build .#packages.x86_64-linux.iso.config.system.build.manual.manualHTML --print-build-logs
+          echo "Manual built successfully"
