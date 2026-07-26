@@ -49,7 +49,7 @@
     htop
     tmux
     vim
-  ];
+  ] ++ [ config.system.build.nixos-generate-config ];
 
   # Set NIX_PATH so that nixos-install and nixos-rebuild can find <nixbsd> and <nixpkgs>
   environment.sessionVariables.NIX_PATH = "nixbsd=${nixbsdSource}:nixpkgs=${_nixbsdNixpkgsPath}";
