@@ -21,7 +21,7 @@ jobs:
             extra-trusted-public-keys = nixbsd:gwcQlsUONBLrrGCOdEboIAeFq9eLaDqfhfXmHZs1mgc=
 
       - name: Check flake evaluates
-        run: nix flake check --no-build --all-systems
+        run: nix flake check --no-build --all-systems --accept-flake-config
 
       - name: Evaluate ISO configuration
         run: nix eval .#nixosConfigurations.iso.config.system.build.toplevel.drvPath

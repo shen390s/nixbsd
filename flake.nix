@@ -113,7 +113,7 @@
         {
           inherit (attrs) vm;
         }
-        // lib.optionalAttrs (attrs.systemImage != null) {
+        // lib.optionalAttrs (attrs ? systemImage && attrs.systemImage != null) {
           inherit (attrs) systemImage;
         }
         // lib.optionalAttrs (attrs ? isoImage) {
