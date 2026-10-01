@@ -54,10 +54,20 @@ in
     # Create the symlink so the wall notification works.
     system.activationScripts.usrbinwall = let
       wallPkg = if pkgs.freebsd ? wall then pkgs.freebsd.wall else pkgs.freebsd.bin;
+      # Fallback: a minimal wall script that writes to logged-in terminals
+      wallFallback = pkgs.writeShellScriptBin "wall" ''
+        msg=$(cat)
+        who 2>/dev/null | while read user tty rest; do
+          [ -w "/dev/$tty" ] && echo "$msg" > "/dev/$tty" 2>/dev/null || true
+        done
+      '';
     in ''
       mkdir -p /usr/bin
       if [ -e "${wallPkg}/bin/wall" ]; then
         ln -sfn "${wallPkg}/bin/wall" /usr/bin/.wall.tmp
+        mv /usr/bin/.wall.tmp /usr/bin/wall
+      else
+        ln -sfn "${wallFallback}/bin/wall" /usr/bin/.wall.tmp
         mv /usr/bin/.wall.tmp /usr/bin/wall
       fi
     '';

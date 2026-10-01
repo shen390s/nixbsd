@@ -49,6 +49,6 @@ with lib;
       ++ lib.optional (
         mini-tmpfiles-flake != null && config.nixpkgs.overrideMiniTmpfiles
       ) mini-tmpfiles-flake.overlays.default
-      ++ [ (import ../../overlays/pkgs.nix) ];
+      ++ [ (import ../../overlays/fixes.nix) (import ../../overlays/pkgs.nix) ];
   };
 }

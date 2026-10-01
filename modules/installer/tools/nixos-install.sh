@@ -180,9 +180,14 @@ touch "$mountPoint/etc/NIXOS"
 # on FreeBSD, so let's hope this works
 case "@hostPlatform@" in
     *-freebsd)
-        mkdir -p "$mountPoint$mountPoint"
-        mount -t nullfs "$mountPoint" "$mountPoint$mountPoint"
-        cleanups+=("umount '$mountPoint$mountPoint'" "rmdir '$mountPoint$mountPoint'")
+        # Create a symlink so that paths like /mnt/mnt/... resolve correctly
+        # when nixos-enter uses chroot. A nullfs mount of $mountPoint onto
+        # $mountPoint$mountPoint causes "Resource deadlock avoided" because
+        # the target is inside the source.  A symlink avoids that issue.
+        if [[ "$mountPoint" != "/" ]]; then
+            ln -sfn "/" "$mountPoint$mountPoint" 2>/dev/null || true
+            cleanups+=("rm -f '$mountPoint$mountPoint'")
+        fi
         ;;
     *-openbsd)
         mkdir -p "$mountPoint/dev"

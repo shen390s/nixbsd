@@ -1,7 +1,7 @@
 # NixBSD ISO image configuration
 # Produces a bootable live ISO suitable for installation or recovery.
 #
-# Build with: nix build .#iso.isoImage
+# Build with: nix build .#images.freebsd-x86_64.iso.isoImage
 { config, lib, pkgs, nixbsdSource ? ./., _nixbsdNixpkgsPath, ... }:
 {
   imports = [
@@ -49,7 +49,7 @@
     htop
     tmux
     vim
-  ] ++ [ config.system.build.nixos-generate-config ];
+  ];
 
   # Set NIX_PATH so that nixos-install and nixos-rebuild can find <nixbsd> and <nixpkgs>
   environment.sessionVariables.NIX_PATH = "nixbsd=${nixbsdSource}:nixpkgs=${_nixbsdNixpkgsPath}";

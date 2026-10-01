@@ -1,6 +1,9 @@
-{ config, lib, ... }:
+{ config, lib, nixbsdSource, _nixbsdNixpkgsPath, ... }:
 {
   nixpkgs.hostPlatform = "x86_64-freebsd";
+
+  # Set NIX_PATH so nixos-rebuild can find <nixbsd> and <nixpkgs>
+  environment.sessionVariables.NIX_PATH = "nixbsd=${nixbsdSource}:nixpkgs=${_nixbsdNixpkgsPath}";
 
   users.users.root.initialPassword = "toor";
 

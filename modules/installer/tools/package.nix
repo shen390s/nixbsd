@@ -130,4 +130,15 @@ rec {
     stateVersion = builtins.concatStringsSep "." (lib.take 2 (lib.splitVersion nixosVersion));
     manPage = ./manpages/nixos-generate-config.8;
   };
+
+  nixbsd-install-to-disk = stdenv.mkDerivation {
+    name = "nixbsd-install-to-disk";
+    src = ./nixbsd-install-to-disk.sh;
+    dontUnpack = true;
+    installPhase = ''
+      mkdir -p $out/bin
+      cp $src $out/bin/nixbsd-install-to-disk
+      chmod +x $out/bin/nixbsd-install-to-disk
+    '';
+  };
 }

@@ -124,7 +124,7 @@ let
       + lib.optionalString pkgs.stdenv.hostPlatform.isFreeBSD ''
         ${lib.optionalString (
           config.fileSystems."/".fsType != "zfs" && config.fileSystems."/".fsType != "tmpfs"
-        ) "fsck -C ${fsckY} /"}
+        ) "fsck -C ${fsckY} / || true"}
         mount -u -w /
       ''
       + ''

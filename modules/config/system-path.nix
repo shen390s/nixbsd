@@ -66,6 +66,7 @@ let
         pkgs.freebsd.ping
         pkgs.freebsd.pwd_mkdb
         pkgs.freebsd.reboot # reboot isn't setuid, shutdown is, make it a wrapper
+        pkgs.freebsd.route
         pkgs.freebsd.services_mkdb
         pkgs.freebsd.swapon
         pkgs.freebsd.sysctl

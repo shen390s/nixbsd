@@ -13,8 +13,12 @@
   };
 
   nixConfig = {
-    extra-substituters = [ "https://attic.mildlyfunctional.gay/nixbsd" ];
-    extra-trusted-public-keys = [ "nixbsd:gwcQlsUONBLrrGCOdEboIAeFq9eLaDqfhfXmHZs1mgc=" ];
+    extra-substituters = [
+      "https://attic.shenrs.eu/nixbsd"
+    ];
+    extra-trusted-public-keys = [
+      "nixbsd:CVc5jh1+of1Qy1Hdpf7Qi3pweICXIeP8kf+/DTu9ocg="
+    ];
   };
 
   outputs =
@@ -98,6 +102,39 @@
         builtins.readDir configBase
       );
 
+      # Structured image outputs keyed by target platform and configuration name.
+      # Usage:
+      #   nix build .#images.freebsd-x86_64.iso.isoImage
+      #   nix build .#images.freebsd-x86_64.base.vm
+      #   nix build .#images.openbsd-x86_64.openbsd-base.vm
+      images =
+        let
+          # Detect the current system for build platform (the machine doing the build)
+          currentSystem = builtins.currentSystem or "x86_64-linux";
+
+          # Group configurations by their target platform
+          targetPlatformOf = name: conf:
+            let hostPlatform = conf.config.nixpkgs.hostPlatform.system or "x86_64-freebsd";
+            in if lib.hasInfix "freebsd" hostPlatform then "freebsd-x86_64"
+               else if lib.hasInfix "openbsd" hostPlatform then "openbsd-x86_64"
+               else hostPlatform;
+
+          buildImage = name: makeImage currentSystem (self.nixosConfigurations.${name});
+
+          # Build a map: { freebsd-x86_64 = { iso = ...; base = ...; }; openbsd-x86_64 = { ... }; }
+          allImages = lib.foldlAttrs (acc: name: conf:
+            let
+              target = targetPlatformOf name conf;
+              image = buildImage name;
+            in acc // {
+              ${target} = (acc.${target} or {}) // { ${name} = image; };
+            }
+          ) {} self.nixosConfigurations;
+        in allImages;
+
+      # Standard packages output (keyed by build platform, for Hydra/CI compatibility).
+      # Note: the top-level key is the BUILD platform (the machine compiling),
+      # not the target. E.g. packages.x86_64-linux.iso builds a FreeBSD ISO on Linux.
       packages = forAllSystems (
         system:
         lib.mapAttrs (name: makeImage system) self.nixosConfigurations
